@@ -22,17 +22,31 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            # ASP.NET Core: bind to 8080 inside the container (matches Service/Ingress).
+            # Bind to 8080 inside the container (matches Service/Ingress).
             - name: ASPNETCORE_URLS
               value: "http://+:8080"
-            # Full connection string is assembled by the app from these parts, OR
-            # supply a single ConnectionStrings__Default value via the SealedSecret.
-            # The DB host is the MS SQL LXC internal IP; database is akk_kercheval.
-            - name: ConnectionStrings__Default
+            - name: ASPNETCORE_ENVIRONMENT
+              value: "Production"
+            # ASP.NET Core maps "__" to nested config keys. These override the
+            # values that would otherwise come from appsettings.json (which is
+            # NOT shipped in the image). Key names must match Program.cs:
+            #   ConnectionStrings:DefaultConnection, Jwt:Key, AdminUser:PasswordHash
+            # All are pulled from the akk-app-secrets SealedSecret.
+            - name: ConnectionStrings__DefaultConnection
               valueFrom:
                 secretKeyRef:
-                  name: akk-db-credentials
+                  name: akk-app-secrets
                   key: connectionString
+            - name: Jwt__Key
+              valueFrom:
+                secretKeyRef:
+                  name: akk-app-secrets
+                  key: jwtKey
+            - name: AdminUser__PasswordHash
+              valueFrom:
+                secretKeyRef:
+                  name: akk-app-secrets
+                  key: adminPasswordHash
           readinessProbe:
             httpGet:
               path: /api/cookiecutters
