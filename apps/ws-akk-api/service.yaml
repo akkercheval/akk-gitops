@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ws-akk-api
+  namespace: akk-api
+spec:
+  selector:
+    app: ws-akk-api
+  ports:
+    - port: 8080
+      targetPort: 8080
+  type: ClusterIP

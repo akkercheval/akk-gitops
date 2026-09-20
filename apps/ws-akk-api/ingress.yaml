@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ws-akk-api
+  namespace: akk-api
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: akk.kercheval.cc
+      http:
+        paths:
+          # Same host as the frontend. nginx-ingress merges rules across
+          # namespaces for one host, and matches the most specific path first,
+          # so /api goes to the API and everything else falls through to the
+          # frontend Ingress. The frontend calls fetch("/api/...") same-origin,
+          # so no CORS and no baked-in API URL are needed.
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: ws-akk-api
+                port:
+                  number: 8080

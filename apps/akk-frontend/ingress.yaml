@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: akk-frontend
+  namespace: akk-frontend
+  annotations:
+    # Frontend is served at the site root. React Router handles sub-paths.
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: akk.kercheval.cc
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: akk-frontend
+                port:
+                  number: 80

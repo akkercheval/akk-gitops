@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ws-akk-api
+  namespace: akk-api
+  labels:
+    app: ws-akk-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ws-akk-api
+  template:
+    metadata:
+      labels:
+        app: ws-akk-api
+    spec:
+      containers:
+        - name: ws-akk-api
+          image: ghcr.io/akkercheval/ws-akk-api:latest   # Argo CD deploys new tags on push
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            # ASP.NET Core: bind to 8080 inside the container (matches Service/Ingress).
+            - name: ASPNETCORE_URLS
+              value: "http://+:8080"
+            # Full connection string is assembled by the app from these parts, OR
+            # supply a single ConnectionStrings__Default value via the SealedSecret.
+            # The DB host is the MS SQL LXC internal IP; database is akk_kercheval.
+            - name: ConnectionStrings__Default
+              valueFrom:
+                secretKeyRef:
+                  name: akk-db-credentials
+                  key: connectionString
+          readinessProbe:
+            httpGet:
+              path: /api/cookiecutters
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /api/cookiecutters
+              port: 8080
+            initialDelaySeconds: 20
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

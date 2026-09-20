@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ws-akk-api
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/akkercheval/akk-gitops.git
+    targetRevision: main
+    path: apps/ws-akk-api
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: akk-api
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
