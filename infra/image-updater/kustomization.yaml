@@ -1,0 +1,27 @@
+# Argo CD Image Updater — installed via its upstream, version-pinned install
+# manifest. Keeping it here (rather than a one-off kubectl apply) means the
+# controller itself is managed by GitOps just like every other component.
+#
+# The remote base is pinned to a release tag so upgrades are an explicit,
+# reviewable change to this file rather than a silent drift to "latest".
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: argocd
+
+resources:
+  - https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/v0.15.2/manifests/install.yaml
+
+# The log level is handy while first bringing this up; drop to "info" once the
+# write-back flow is confirmed working.
+patches:
+  - target:
+      kind: ConfigMap
+      name: argocd-image-updater-config
+    patch: |
+      - op: add
+        path: /data
+        value:
+          # Interval between registry scans. 2m is plenty for a homelab.
+          interval: "2m"
+          log.level: "info"

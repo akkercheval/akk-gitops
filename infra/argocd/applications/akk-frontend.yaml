@@ -5,6 +5,30 @@ metadata:
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.io
+  annotations:
+    # --- Argo CD Image Updater -------------------------------------------
+    # Watch GHCR for newer builds of the frontend image and write the new tag
+    # back into apps/akk-frontend/kustomization.yaml (the images: block) via a
+    # git commit, so the manifest in this repo always reflects what is running.
+    #
+    # Alias "frontend" ties the settings below to this one image.
+    argocd-image-updater.argoproj.io/image-list: >-
+      frontend=ghcr.io/akkercheval/akk-frontend
+    # CI tags images as "sha-<short>" (docker/metadata-action type=sha). A git
+    # SHA is not sortable, so order candidates by image build time and only
+    # consider the sha- tags (ignore "latest" and branch-name tags).
+    argocd-image-updater.argoproj.io/frontend.update-strategy: newest-build
+    argocd-image-updater.argoproj.io/frontend.allow-tags: regexp:^sha-[0-9a-f]{7,}$
+    # Private GHCR repo -> authenticate with the pull secret created in the
+    # argocd namespace (see infra/image-updater/README.md).
+    argocd-image-updater.argoproj.io/frontend.pull-secret: pullsecret:argocd/ghcr-creds
+    # Write-back: commit the new tag to Git (not just patch the live Argo
+    # Application), keeping GitOps the source of truth. The kustomization target
+    # updates the images: block in apps/akk-frontend/kustomization.yaml. Auth
+    # uses the git-creds secret in the argocd namespace.
+    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
+    argocd-image-updater.argoproj.io/write-back-target: "kustomization:apps/akk-frontend"
+    argocd-image-updater.argoproj.io/git-branch: main
 spec:
   project: default
   source:

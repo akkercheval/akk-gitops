@@ -17,8 +17,12 @@ spec:
     spec:
       containers:
         - name: akk-frontend
-          image: ghcr.io/akkercheval/akk-frontend:latest   # Argo CD deploys new tags on push
-          imagePullPolicy: Always
+          # Immutable, build-specific tag. Argo CD Image Updater rewrites this
+          # value in Git (see infra/argocd/applications/akk-frontend.yaml) each
+          # time a newer sha-tagged build is pushed to GHCR, so the manifest
+          # stays the source of truth and rollbacks are a one-line revert.
+          image: ghcr.io/akkercheval/akk-frontend:sha-8eff172
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
           readinessProbe:

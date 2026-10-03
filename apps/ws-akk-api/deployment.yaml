@@ -17,8 +17,13 @@ spec:
     spec:
       containers:
         - name: ws-akk-api
-          image: ghcr.io/akkercheval/ws-akk-api:latest   # Argo CD deploys new tags on push
-          imagePullPolicy: Always
+          # The effective tag comes from the images: override in
+          # kustomization.yaml, which Argo CD Image Updater rewrites to the
+          # newest sha-<short> build (see
+          # infra/argocd/applications/ws-akk-api.yaml). This literal mirrors the
+          # current pinned build for readability.
+          image: ghcr.io/akkercheval/ws-akk-api:sha-1cc826d
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           env:

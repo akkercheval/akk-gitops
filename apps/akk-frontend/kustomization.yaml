@@ -1,0 +1,19 @@
+# Kustomization for the frontend app. Argo CD renders this directory with
+# Kustomize, and Argo CD Image Updater writes the resolved image tag into the
+# `images:` block below (write-back-target "kustomization:apps/akk-frontend").
+#
+# The deployment.yaml still references a concrete tag for readability, but this
+# `images:` override is what Image Updater actually bumps on each new build.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: akk-frontend
+
+resources:
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+
+images:
+  - name: ghcr.io/akkercheval/akk-frontend
+    newTag: sha-8eff172

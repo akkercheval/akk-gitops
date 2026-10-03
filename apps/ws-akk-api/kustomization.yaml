@@ -1,0 +1,19 @@
+# Kustomization for the backend API. Argo CD renders this directory with
+# Kustomize, and Argo CD Image Updater writes the resolved image tag into the
+# `images:` block below (write-back-target "kustomization:apps/ws-akk-api").
+#
+# Pinned to the current main build (ws-akk-api @ 1cc826d). Image Updater bumps
+# this to each newer sha-<short> build pushed to GHCR.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: akk-api
+
+resources:
+  - deployment.yaml
+  - service.yaml
+  - ingress.yaml
+
+images:
+  - name: ghcr.io/akkercheval/ws-akk-api
+    newTag: sha-1cc826d

@@ -1,0 +1,28 @@
+# Installs Argo CD Image Updater into the cluster (argocd namespace) via the
+# version-pinned kustomization under infra/image-updater/. Discovered and synced
+# automatically by the app-of-apps root (infra/argocd/root-app.yaml).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: image-updater
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/akkercheval/akk-gitops.git
+    targetRevision: main
+    path: infra/image-updater
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      # The upstream install manifest is large; server-side apply avoids the
+      # client-side "last-applied-configuration" annotation size limit.
+      - ServerSideApply=true

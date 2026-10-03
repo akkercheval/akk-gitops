@@ -5,6 +5,27 @@ metadata:
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.io
+  annotations:
+    # --- Argo CD Image Updater -------------------------------------------
+    # Same mechanism as akk-frontend: watch GHCR for newer sha-<short> builds of
+    # the backend image and commit the new tag back into
+    # apps/ws-akk-api/kustomization.yaml (the images: block).
+    #
+    # NOTE: the ws-akk-api CI must tag images "sha-<short>" (docker/metadata
+    # type=sha), matching the frontend, for the allow-tags filter below to work.
+    #
+    # Alias "api" ties the settings below to this one image.
+    argocd-image-updater.argoproj.io/image-list: >-
+      api=ghcr.io/akkercheval/ws-akk-api
+    argocd-image-updater.argoproj.io/api.update-strategy: newest-build
+    argocd-image-updater.argoproj.io/api.allow-tags: regexp:^sha-[0-9a-f]{7,}$
+    # Private GHCR repo -> reuse the shared pull secret in the argocd namespace.
+    argocd-image-updater.argoproj.io/api.pull-secret: pullsecret:argocd/ghcr-creds
+    # Git write-back to the kustomization images: block, using the shared
+    # git-creds secret in the argocd namespace.
+    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
+    argocd-image-updater.argoproj.io/write-back-target: "kustomization:apps/ws-akk-api"
+    argocd-image-updater.argoproj.io/git-branch: main
 spec:
   project: default
   source:
