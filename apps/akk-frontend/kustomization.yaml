@@ -6,14 +6,11 @@
 # `images:` override is what Image Updater actually bumps on each new build.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-
 namespace: akk-frontend
-
 resources:
-  - deployment.yaml
-  - service.yaml
-  - ingress.yaml
-
+- deployment.yaml
+- service.yaml
+- ingress.yaml
 images:
-  - name: ghcr.io/akkercheval/akk-frontend
-    newTag: sha-8eff172
+- name: ghcr.io/akkercheval/akk-frontend
+  newTag: sha-69af968
