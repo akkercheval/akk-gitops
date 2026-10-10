@@ -24,7 +24,10 @@ metadata:
     # Git write-back to the kustomization images: block, using the shared
     # git-creds secret in the argocd namespace.
     argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
-    argocd-image-updater.argoproj.io/write-back-target: "kustomization:apps/ws-akk-api"
+    # Relative to the Application's spec.source.path (apps/ws-akk-api), so the
+    # kustomization sitting at that path is "." — NOT the repo-root path, which
+    # would double to apps/ws-akk-api/apps/ws-akk-api.
+    argocd-image-updater.argoproj.io/write-back-target: "kustomization:."
     argocd-image-updater.argoproj.io/git-branch: main
 spec:
   project: default

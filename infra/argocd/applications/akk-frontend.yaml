@@ -27,7 +27,10 @@ metadata:
     # updates the images: block in apps/akk-frontend/kustomization.yaml. Auth
     # uses the git-creds secret in the argocd namespace.
     argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
-    argocd-image-updater.argoproj.io/write-back-target: "kustomization:apps/akk-frontend"
+    # Relative to the Application's spec.source.path (apps/akk-frontend), so the
+    # kustomization sitting at that path is "." — NOT the repo-root path, which
+    # would double to apps/akk-frontend/apps/akk-frontend.
+    argocd-image-updater.argoproj.io/write-back-target: "kustomization:."
     argocd-image-updater.argoproj.io/git-branch: main
 spec:
   project: default
