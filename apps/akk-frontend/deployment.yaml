@@ -17,10 +17,15 @@ spec:
     spec:
       containers:
         - name: akk-frontend
-          # Immutable, build-specific tag. Argo CD Image Updater rewrites this
-          # value in Git (see infra/argocd/applications/akk-frontend.yaml) each
-          # time a newer sha-tagged build is pushed to GHCR, so the manifest
-          # stays the source of truth and rollbacks are a one-line revert.
+          # NOTE: this literal tag is NOT the one that gets deployed and is NOT
+          # kept up to date. The effective image comes from the images: override
+          # in kustomization.yaml, which is the only place Argo CD Image Updater
+          # rewrites on a new build (write-back-target "kustomization:." on the
+          # Application; see infra/argocd/applications/akk-frontend.yaml).
+          # Kustomize's images: transform wins over this value regardless, so
+          # treat this as a readability hint only — it will drift from the
+          # running tag. To see / change what is actually deployed, look at
+          # apps/akk-frontend/kustomization.yaml.
           image: ghcr.io/akkercheval/akk-frontend:sha-8eff172
           imagePullPolicy: IfNotPresent
           ports:

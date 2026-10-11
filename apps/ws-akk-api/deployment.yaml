@@ -17,11 +17,15 @@ spec:
     spec:
       containers:
         - name: ws-akk-api
-          # The effective tag comes from the images: override in
-          # kustomization.yaml, which Argo CD Image Updater rewrites to the
-          # newest sha-<short> build (see
-          # infra/argocd/applications/ws-akk-api.yaml). This literal mirrors the
-          # current pinned build for readability.
+          # NOTE: this literal tag is NOT the one that gets deployed and is NOT
+          # kept up to date. The effective image comes from the images: override
+          # in kustomization.yaml, the only place Argo CD Image Updater rewrites
+          # on a new build (write-back-target "kustomization:." on the
+          # Application; see infra/argocd/applications/ws-akk-api.yaml).
+          # Kustomize's images: transform wins over this value regardless, so
+          # treat this as a readability hint only — it will drift from the
+          # running tag. To see / change what is actually deployed, look at
+          # apps/ws-akk-api/kustomization.yaml.
           image: ghcr.io/akkercheval/ws-akk-api:sha-1cc826d
           imagePullPolicy: IfNotPresent
           ports:
