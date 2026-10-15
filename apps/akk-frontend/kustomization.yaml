@@ -13,4 +13,4 @@ resources:
 - ingress.yaml
 images:
 - name: ghcr.io/akkercheval/akk-frontend
-  newTag: sha-69af968
+  newTag: sha-d4a30e9
